@@ -49,6 +49,9 @@ function Edit() {
             </Link>
           </li>
           <li>
+            <Link href={`/profile/address/${user.uid}`}>ADDRESS </Link>
+          </li>
+          <li>
             <Link href="">NOTIFICATIONS </Link>
           </li>
           <li>

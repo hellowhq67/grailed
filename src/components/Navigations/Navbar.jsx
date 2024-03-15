@@ -7,21 +7,21 @@ import { UseAuth } from "@/app/context/AuthContext";
 import Sidebar from "./Sidebar";
 
 export default function Navbar() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const { user, logOut } = UseAuth();
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Step 1
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen); // Step 2
+    setSidebarOpen(!sidebarOpen); 
   };
-  console.log(user);
+
   useEffect(() => {
     const checkAuthentication = async () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       setLoading(false);
-    };
+    }
     checkAuthentication();
   }, [user]);
   const handelLogout = async () => {

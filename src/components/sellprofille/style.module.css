@@ -39,6 +39,12 @@
     justify-content: center;
     gap: 40px;
   }
+  .proImgae {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 1px solid black;
+  }
   .edits {
     padding: 10px 19px;
     border: 1px solid rgba(128, 128, 128, 0.603);

@@ -43,7 +43,7 @@ export default function Mensweare() {
   return (
     <div className={style.conteiner}>
     <div className={style.Col}>
-    <h2 className={style.title}>Shop by style</h2>
+    <h2 className={style.title}>Shop by Menswear</h2>
      <div>
        <div className={style.wrapper}>
          {data.map((x) => {

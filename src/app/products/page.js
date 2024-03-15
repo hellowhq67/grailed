@@ -459,7 +459,7 @@ export default function page() {
 
         <div className={style.productWrapprer}>
 
-          {products.filter(filterProducts).map((x) => {
+          {!products?(<div>loading...</div>):products.filter(filterProducts).map((x) => {
             return <>
 
               <div key={x._id} className={style.ProductSildes}>

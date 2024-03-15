@@ -78,9 +78,9 @@
     margin:10px 10px ;
     background: transparent;
     color: whitesmoke;
-    border: 2px solid white;
+    border: 1px solid white;
     transition: .3s ease;
-    font-size: 9px;
+    font-size: 6px;
   }
   .btn:hover{
     background: blue;

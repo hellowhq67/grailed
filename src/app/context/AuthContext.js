@@ -2,13 +2,14 @@
 import { useContext, createContext, useState, useEffect } from "react";
 import { signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { collection, doc, setDoc,getDocs,updateDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs, updateDoc, getDoc } from "firebase/firestore";
 
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [userDatas, setUserData] = useState(null);
 
   const googleSignIn = () => {
     const provider = new GoogleAuthProvider();
@@ -90,33 +91,30 @@ export const AuthContextProvider = ({ children }) => {
       console.error("Error updating profile:", error.message);
     }
   };
-  const AddressDetails = async (name,
-    streetaddress,
-    country,
-    apt,
-    state,
-    zipcode,) => {
+
+  const AddressDetails = async (name, streetaddress, country, apt, state, zipcode) => {
     try {
       // Update user's data in Firestore
       if (auth.currentUser) {
         const userRef = doc(db, "users", auth.currentUser.uid);
         const userData = {
-          displayName: currentUser.displayName,
-          email: currentUser.email,
-          address: {
-            name: name,
-            streetaddress: streetaddress,
-            country: country,
-            apt: apt,
-            state: state,
-            zipcode: zipcode,
-          },
-
+          addressname: name,
+          streetaddress: streetaddress,
+          country: country,
+          apt: apt,
+          state: state,
+          zipcode: zipcode,
         };
-        await setDoc(userRef, userData, { merge: true });
+        await setDoc(userRef, userData, { merge: true }); // Changed to setDoc
+        console.log("Address updated successfully");
+        // Assuming you want to display a success toast here
+      } else {
+        console.error("No user logged in");
       }
     } catch (error) {
-      console.error("Error updating profile:", error.message);
+      console.error("Error updating address:", error.message);
+      // Assuming you want to display an error toast here
+      toast.error("Failed to update address");
     }
   };
   // for the developer 
@@ -172,13 +170,17 @@ export const AuthContextProvider = ({ children }) => {
       const usersCollectionRef = collection(db, "users");
       const snapshot = await getDocs(usersCollectionRef);
       const usersData = snapshot.docs.map(doc => doc.data());
-      console.log("Users data:", usersData); // Log the retrieved users data
+      console.log(usersData)
+
+      // Log the retrieved users data
       return usersData;
     } catch (error) {
       console.error("Error fetching all users data:", error.message);
       return [];
     }
   };
+
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -199,7 +201,7 @@ export const AuthContextProvider = ({ children }) => {
               bacth: 'Item as described',
               productName: "Nike Vintage Y2K Nylon Baggy Track Pants Double Swoosh",
               desinger: "",
-              productimgae: "https://media-assets.grailed.com/prd/listing/temp/9bd7f114f90e4c85a799184484e5aa2f?w=120&fit=clip&q=40&auto=format",
+              productimgae: "https://utfs.io/f/03f7b00c-d66c-42fd-a953-847bf6b0f448-y3jerb.avif",
               customerId: "",
               customerDisplayName: "freed"
             },
@@ -231,11 +233,14 @@ export const AuthContextProvider = ({ children }) => {
           ],
 
           follow: [],
-          wishlist: [
-
-          ],
+          wishlist: [],
           transtion: 0,
-
+          addressname: currentUser.name,
+          streetaddress: currentUser.streetaddress,
+          country: currentUser.country,
+          apt: currentUser.apt,
+          state: currentUser.state,
+          zipcode: currentUser.zipcode,
 
 
         };
@@ -246,8 +251,9 @@ export const AuthContextProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+
   return (
-    <AuthContext.Provider value={{ user, googleSignIn, facebookSignIn, appleSignIn, logOut, updateProfile, PaymentUpdate, AddressDetails, bussinessInfo,getAllUsersData }}>
+    <AuthContext.Provider value={{ user, googleSignIn,  facebookSignIn, appleSignIn, logOut, updateProfile, PaymentUpdate, AddressDetails, bussinessInfo, getAllUsersData, }}>
       {children}
     </AuthContext.Provider>
   );

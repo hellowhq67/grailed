@@ -1,0 +1,33 @@
+.profileEditWrappper{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    gap: 10rem;
+  
+  }
+  .profileLink li{
+    margin: 40px 20px;
+    list-style: none;
+  }
+  .profileLink li a{
+    text-decoration: none;
+    color:black;
+  
+  }
+  .formWrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 40vw;
+  }
+  .formWrapper input{
+    padding: 15px 40px ;
+    margin-right: 20px;
+  }
+
+  .formWrapper button {
+    padding: 10px 20px;
+    background:black;
+    color: white;
+  }

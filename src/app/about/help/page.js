@@ -43,10 +43,10 @@ export default function page() {
         },
 
     ];
-   
+
     return (
         <>
-        <Navbar/>
+            <Navbar />
             <div className={style.section}>
                 <div
                     className={style.bannerCOl}
@@ -58,7 +58,7 @@ export default function page() {
                     <input type="text" name="" id="" placeholder='how can we help' />
                 </div>
                 <div className={style.wrap}>
-             
+
                 </div>
                 <div className={style.wrapper}>
                     {data.map((x) => {
@@ -76,22 +76,22 @@ export default function page() {
 
                     }
                 </div>
-          <div style={{padding:'2rem'}}>
-            <h2>Promoted Artivcles</h2>
-          <div className={style.wrap}>
-                  {data.map((x)=>{
-                    return(
-                        <>
-                        <div className={style.links}>
-                        <h2>{x.desc}</h2>
-                        </div>
-                        </>
-                    )
-                  })
+                <div style={{ padding: '2rem' }}>
+                    <h2>Promoted Artivcles</h2>
+                    <div className={style.wrap}>
+                        {data.map((x) => {
+                            return (
+                                <>
+                                    <div className={style.links}>
+                                        <h2>{x.desc}</h2>
+                                    </div>
+                                </>
+                            )
+                        })
 
-                  }
+                        }
+                    </div>
                 </div>
-          </div>
             </div>
 
         </>

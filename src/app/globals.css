@@ -7,11 +7,12 @@
 }
 body{
   text-decoration: none;
-  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+ 
   width: 100%;
   height: 100%;
-  
+  font-family: "SF Pro Text", -apple-system, Helvetica, Arial, "Segoe UI", Roboto, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
+
 hr {
   border: none;
   border-top: 1px solid #ccc; /* Color of the horizontal line */

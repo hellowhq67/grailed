@@ -4,8 +4,6 @@ import NestedMenu from "@/components/Navigations/NestedMenu";
 import React, { useState, useEffect } from "react";
 import { UseAuth } from "@/app/context/AuthContext";
 import style from "./style.module.css";
-import ProductFlter from "@/components/productFilter/ProductFlter";
-import Feedback from "@/components/productFilter/Feedback";
 import { Rating, StarIcon } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -37,9 +35,16 @@ export default function Public({ sellerID }) {
     reting: "",
     transaction: "",
     profileImage: "",
+    name: "",
+    streetAddress: "",
+    country: "",
+    apt: "",
+    state: "",
+    zipcode: "",
     feedbacks: Number,
     feedbacksdata: [],
   });
+  const id = "65f48ae4ddcd139ce52b3818";
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen); // Step 2
   };
@@ -66,6 +71,12 @@ export default function Public({ sellerID }) {
             profileImage: user.profileimgae || "",
             feedbacks: user.feedbacks.length || "",
             feedbacksdata: [user.feedbacks] || "",
+            name: user.addressname || "",
+            streetAddress: user.streetaddress || "",
+            country: user.country || "",
+            apt: user.apt || "",
+            state: user.state || "",
+            zipcode: user.zipcode || "",
           });
 
           // Save user data to local storage
@@ -80,6 +91,12 @@ export default function Public({ sellerID }) {
               profileImage: user.profileimgae || "",
               feedbacks: user.feedbacks.length || "",
               feedbacksdata: user.feedbacks || "",
+              name: user.addressname || "",
+              streetAddress: user.streetaddress || "",
+              country: user.country || "",
+              apt: user.apt || "",
+              state: user.state || "",
+              zipcode: user.zipcode || "",
             })
           );
         }
@@ -186,7 +203,7 @@ export default function Public({ sellerID }) {
             <div className={style.infos}>
               <h1>{userData.userDisplayName}</h1>
               <h4>Joined in 2024</h4>
-              <p style={{display:"flex"}}>
+              <p style={{ display: "flex" }}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -208,6 +225,7 @@ export default function Public({ sellerID }) {
                 </svg>
                 {userData.location}
               </p>
+              <p>{userData.state}</p>
             </div>
           </div>
 
@@ -1179,57 +1197,69 @@ export default function Public({ sellerID }) {
                   <div className={style.feedbackCol}>
                     {userData.feedbacksdata[0].map((x) => {
                       return (
-                        <div className={style.feedcard} key={x.id}>
-                          <div className={style.feedData}>
-                            <span>March 8 2024</span>
-                            <Rating
-                              name="half-rating-read"
-                              defaultValue={x.reting}
-                              precision={0.5}
-                              style={{
-                                color:
-                                  x.reting === 1
-                                    ? "red"
-                                    : x.reting === 3
-                                    ? "yellow"
-                                    : "darkgreen",
-                              }}
-                              readOnly
-                            />
+                        <>
+                          <Link
+                            style={{ textDecoration: "none", color: "black" }}
+                            href={`/listings/${id}`}
+                          >
+                            <div className={style.feedcard} key={x.id}>
+                              <div className={style.feedData}>
+                                <span>March 8 2024</span>
+                                <Rating
+                                  name="half-rating-read"
+                                  defaultValue={x.reting}
+                                  precision={0.5}
+                                  style={{
+                                    color:
+                                      x.reting === 1
+                                        ? "red"
+                                        : x.reting === 3
+                                        ? "yellow"
+                                        : "darkgreen",
+                                  }}
+                                  readOnly
+                                />
 
-                            <p>{x.description}</p>
-                            <div className={style.batchFiled}>
-                              <div
-                                style={{
-                                  background: "rgba(243, 238, 238, 0.486)",
-                                  color: "grey",
-                                  padding: "4px 7px",
-                                  fontSize: "10px",
-                                }}
-                              >
-                                FAST SHIPPER
+                                <p>{x.description}</p>
+                                <div className={style.batchFiled}>
+                                  <div
+                                    style={{
+                                      background: "rgba(243, 238, 238, 0.486)",
+                                      color: "grey",
+                                      padding: "4px 7px",
+                                      fontSize: "10px",
+                                    }}
+                                  >
+                                    FAST SHIPPER
+                                  </div>
+                                  <div
+                                    style={{
+                                      background: "rgba(243, 238, 238, 0.709)",
+                                      color: "grey",
+                                      padding: "4px 7px",
+                                      fontSize: "10px",
+                                    }}
+                                  >
+                                    {x.bacth}
+                                  </div>
+                                </div>
+
+                                <Link href="" style={{ color: "black" }}>
+                                  {"BARBOUR × STREETWEAR × VINTAGE"}
+                                </Link>
+                                <p>
+                             
+                                  {x.productName}{" "}
+                                </p>
                               </div>
-                              <div
-                                style={{
-                                  background: "rgba(243, 238, 238, 0.709)",
-                                  color: "grey",
-                                  padding: "4px 7px",
-                                  fontSize: "10px",
-                                }}
-                              >
-                                {x.bacth}
+                              <div>
+                                <Link href={`/listings/${id}`}>
+                                  <img src={x.productimgae} alt="" />
+                                </Link>
                               </div>
                             </div>
-
-                            <Link href="" style={{ color: "black" }}>
-                              {"BARBOUR × STREETWEAR × VINTAGE"}
-                            </Link>
-                            <p> {x.productName} </p>
-                          </div>
-                          <div>
-                            <img src={x.productimgae} alt="" />
-                          </div>
-                        </div>
+                          </Link>
+                        </>
                       );
                     })}
                   </div>
@@ -1239,6 +1269,7 @@ export default function Public({ sellerID }) {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -3,6 +3,8 @@ import "./globals.css";
 import { AuthContextProvider } from "./context/AuthContext";
 import "@uploadthing/react/styles.css";
 import 'react-toastify/dist/ReactToastify.css';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {

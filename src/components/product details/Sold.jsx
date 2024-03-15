@@ -59,7 +59,7 @@ const style = {
   gap: "1rem",
 };
 
-function ProductDetail({ productId }) {
+function Sold({ productId }) {
   const {user} =UseAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -353,22 +353,17 @@ function ProductDetail({ productId }) {
                 </select>{" "}
               </span>
 
-              <button
-                className={styles.btn1}
-                disabled={loading}
-              >
-          <Link style={{textDecoration:"none",color:"white"}} href={`/checkout/${product._id}/${!user?(""):user.uid}`}>{'PURCHEASE'}</Link>
-              </button>
+    
          
               {product.acceptOffer ? (
-                <button className={styles.btn2} onClick={handleOpen2}>
-                  OFFER
+                <button className={styles.btn1} onClick={handleOpen2}>
+                 MAKE AN OFFER
                 </button>
               ) : (
                 ""
               )}
               <button onClick={handleOpen3} className={styles.btn2}>
-                MESSAGE
+            SELL YOURS
               </button>
 
               <hr />
@@ -831,4 +826,4 @@ function ProductDetail({ productId }) {
   );
 }
 
-export default ProductDetail;
+export default Sold;

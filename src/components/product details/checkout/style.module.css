@@ -1,0 +1,131 @@
+.checkout {
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  justify-content: space-evenly;
+  text-align: center;
+  background: rgb(255, 255, 255);
+  padding: 20px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.436);
+}
+.wrapper {
+  display: flex;
+}
+.col1 {
+  background: white;
+  width: 50vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 4rem;
+  padding: 6rem 20px;
+}
+.addcard {
+  border: 1px solid rgba(0, 0, 0, 0.369);
+  display: flex;
+  align-items: center;
+  width: 40vw;
+  justify-content: space-between;
+  padding: 2rem;
+  margin: 20px 0px;
+}
+.cardCol {
+  display: flex;
+  flex-direction: column;
+}
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.col2 {
+  background: #fbfbfbef;
+  width: 50vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4rem;
+  padding: 6rem 20px;
+  color: rgb(94, 94, 94);
+}
+.Numcol {
+  border: 1px solid rgba(0, 0, 0, 0.369);
+  display: flex;
+  align-items: center;
+  width: 40vw;
+  justify-content: space-between;
+  padding: 1rem;
+  margin: 20px 0px;
+}
+.productCard {
+  display: flex;
+  align-items: center;
+  width: 30vw;
+  font-size: 13px;
+  padding: 20px;
+  border: 1px solid;
+  border: 1px solid rgba(0, 0, 0, 0.369);
+  justify-content: space-between;
+  background: #ffffffdb;
+}
+.infoCOl {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.oderDetails {
+  width: 30vw;
+}
+.oderCOl {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px dashed black;
+  width: 30vw;
+  gap: 20px;
+  padding: 20px 0px;
+}
+.colflex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+@media (max-width: 750px) {
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  .col1 {
+    background: white;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 4rem;
+    padding: 10px;
+  }
+  .addcard {
+    border: 1px solid rgba(0, 0, 0, 0.369);
+    display: flex;
+    align-items: center;
+    width: 80vw;
+    justify-content: space-between;
+    padding: 2rem;
+    margin: 20px 0px;
+  }
+  .Numcol {
+    border: 1px solid rgba(0, 0, 0, 0.369);
+    display: flex;
+    align-items: center;
+    width: 80vw;
+    justify-content: space-between;
+    padding: 1rem;
+    margin: 20px 0px;
+  }
+
+}

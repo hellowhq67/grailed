@@ -272,7 +272,7 @@ function Sold({ productId }) {
               <button
                 style={{
                   padding: "15px 20px",
-                  background: "black",
+                  background: "#00000",
                   color: "white",
                   width: "300px",
                 }}
@@ -350,7 +350,7 @@ function Sold({ productId }) {
                   <option value="">Asia</option>
                   <option value="">europe </option>
                   <option value="">canda</option>
-                </select>{" "}
+                </select>
               </span>
 
     

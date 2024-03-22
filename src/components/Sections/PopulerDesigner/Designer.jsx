@@ -1,6 +1,6 @@
 import React from 'react'
 import style from './Style.module.css'
-export default function Designers() {
+export default function Designer() {
   const data = [
     {
         img:"https://media-assets.grailed.com/prd/detail-page/be90043b1059462eb0c4b284dd415a37?w=400&h=400&fit=clip&q=40&auto=format",

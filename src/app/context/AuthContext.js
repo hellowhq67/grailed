@@ -1,8 +1,8 @@
 'use client'
 import { useContext, createContext, useState, useEffect } from "react";
-import { signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider,createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { collection, doc, setDoc, getDocs, updateDoc, getDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs,  Timestamp } from "firebase/firestore";
 
 
 const AuthContext = createContext();
@@ -118,22 +118,7 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
   // for the developer 
-  const ActivePayementMetod = async () => {
-    try {
-      // Update user's data in Firestore
-      if (auth.currentUser) {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const userData = {
-
-          //add payment Provider paypa stri
-
-        };
-        await setDoc(userRef, userData, { merge: true });
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error.message);
-    }
-  };
+ 
   // for the developer  after add pyament method work with the feedback section remove the dummy data form it
   const FeebackFunction = async (sellerID, date, description, bacth, productName, customerId, customerDisplayName, desinger, productimgae) => {
     try {
@@ -165,6 +150,24 @@ export const AuthContextProvider = ({ children }) => {
       console.error("Error updating profile:", error.message);
     }
   };
+
+
+
+  const createAccountWithEmail = async (email, password) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const { user } = userCredential;
+      setUser(user);
+      // You can add additional actions after successful account creation, such as updating user profile.
+    } catch (error) {
+      console.error("Error creating account:", error.message);
+    }
+  };
+
+
+
+
+  
   const getAllUsersData = async () => {
     try {
       const usersCollectionRef = collection(db, "users");
@@ -201,7 +204,7 @@ export const AuthContextProvider = ({ children }) => {
               bacth: 'Item as described',
               productName: "Nike Vintage Y2K Nylon Baggy Track Pants Double Swoosh",
               desinger: "",
-              productimgae: "https://utfs.io/f/03f7b00c-d66c-42fd-a953-847bf6b0f448-y3jerb.avif",
+              productimgae: "https://media-assets.grailed.com/prd/listing/temp/9bd7f114f90e4c85a799184484e5aa2f?w=120&fit=clip&q=40&auto=format",
               customerId: "",
               customerDisplayName: "freed"
             },
@@ -235,12 +238,8 @@ export const AuthContextProvider = ({ children }) => {
           follow: [],
           wishlist: [],
           transtion: 0,
-          addressname: currentUser.name,
-          streetaddress: currentUser.streetaddress,
-          country: currentUser.country,
-          apt: currentUser.apt,
-          state: currentUser.state,
-          zipcode: currentUser.zipcode,
+          joinDate: Timestamp.now(), 
+    
 
 
         };
@@ -253,7 +252,7 @@ export const AuthContextProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ user, googleSignIn,  facebookSignIn, appleSignIn, logOut, updateProfile, PaymentUpdate, AddressDetails, bussinessInfo, getAllUsersData, }}>
+    <AuthContext.Provider value={{ user, googleSignIn,  facebookSignIn, appleSignIn, logOut, updateProfile, PaymentUpdate, AddressDetails, bussinessInfo, getAllUsersData,createAccountWithEmail }}>
       {children}
     </AuthContext.Provider>
   );

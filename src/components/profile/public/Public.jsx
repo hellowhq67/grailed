@@ -12,9 +12,10 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import axios from "axios";
 import Footer from "@/components/Navigations/Footer";
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 const fetchProducts = async () => {
   try {
-    const response = await axios.get("http://localhost:3001/api/products");
+    const response = await axios.get("http://localhost:3001/api/products/total");
     return response.data.products;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -51,8 +52,6 @@ export default function Public({ sellerID }) {
   const toggleSidebarclose = () => {
     setSidebarOpen(!sidebarOpen); // Step 2
   };
-
-  console.log(userData.feedbacksdata);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -130,18 +129,21 @@ export default function Public({ sellerID }) {
     const { name, checked } = event.target;
     setFilters({ ...filters, [name]: checked });
   };
+
+
+
+  const [sortOption, setSortOption] = useState('');
+
+
   const handleSortChange = (event) => {
-    const value = event.target.value;
-    if (value === "lowPrice") {
+    const option = event.target.value;
+    setSortOption(option);
+    if (option === 'lowPrice') {
       setProducts([...products.sort((a, b) => a.price - b.price)]);
-    } else if (value === "highPrice") {
+    } else if (option === 'highPrice') {
       setProducts([...products.sort((a, b) => b.price - a.price)]);
-    } else if (value === "new") {
-      setProducts([
-        ...products.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        ),
-      ]);
+    } else if (option === 'new') {
+      setProducts([...products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))]);
     } else {
       // Default sorting or any other sorting logic
     }
@@ -230,9 +232,8 @@ export default function Public({ sellerID }) {
           </div>
 
           <div className={style.profileInfo}>
-            <div>
-              <span>
-                {" "}
+            <div className="">
+              <span style={{display:"flex",alignItems:"center"}}>
                 {userData.feedbacks}
                 <Rating
                   name="half-rating-read"
@@ -255,8 +256,8 @@ export default function Public({ sellerID }) {
           </div>
         </div>
         <div className={style.buttonCol}>
-          <butto className={style.edits}>Follow</butto>
-          <button>
+          <button className={style.edits}>Follow</button>
+          <button className={style.shear}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -319,22 +320,7 @@ export default function Public({ sellerID }) {
           {activeTab === "listings" && (
             <>
               <div>
-                <div className={style.fiterButton} onClick={toggleSidebar}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    width={30}
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
-                    />
-                  </svg>
-                </div>
+             
                 <div className={style.wrapper2}>
                   <span style={{ fontWeight: "bold" }}>
                     {products.length} listings
@@ -353,16 +339,25 @@ export default function Public({ sellerID }) {
                     >
                       filter
                     </button>
-                    <select
-                      className={style.selectFliter}
-                      onChange={handleSortChange}
-                    >
-                      <option value="">Sort By: Default</option>
-                      <option value="trending">Sort By: Trending</option>
-                      <option value="lowPrice">Sort By: Low Price</option>
-                      <option value="highPrice">Sort By: High Price</option>
-                      <option value="new">Sort By: New</option>
-                    </select>
+                    <FormControl  sx={{ m: 1, minWidth: 120 }} size="small">
+          <InputLabel id="demo-select-small-label">Sort By</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              id="demo-select-small"
+              value={sortOption}
+              onChange={handleSortChange}
+              label="Sort by"
+
+
+            >
+              <MenuItem value="lowPrice">Low Price</MenuItem>
+              <MenuItem value="highPrice">High Price</MenuItem>
+              <MenuItem value="new">New</MenuItem>
+            </Select>
+          </FormControl>
+
+
+
                   </div>
                 </div>
                 <div className={style.wrapper}>

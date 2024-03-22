@@ -31,7 +31,8 @@ import { UseAuth } from "@/app/context/AuthContext";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ToastContainer, toast } from "react-toastify";
 import ProductSilder from "../productSildersq/ProductSilder";
-
+import Modals from "../authModal/Modals";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -59,10 +60,20 @@ const style = {
   gap: "1rem",
 };
 
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get("http://localhost:3001/api/products/total");
+    return response.data.products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+};
 function ProductDetail({ productId }) {
-  const {user} =UseAuth();
+  const { user, getAllUsersData } = UseAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedShipping, setSelectedShipping] = useState("");
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -72,16 +83,36 @@ function ProductDetail({ productId }) {
   const [open3, setOpen3] = React.useState(false);
   const handleOpen3 = () => setOpen3(true);
   const handleClose3 = () => setOpen3(false);
+  const [open4, setOpen4] = React.useState(false);
+  const handleOpen4 = () => setOpen4(true);
+  const handleClose4 = () => setOpen4(false);
   const [expanded, setExpanded] = React.useState(false);
+  const [sellerProduct, setSellerproduct] = useState("");
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+  const [userData, setUserData] = useState({
+    location: "",
+    userDisplayName: "",
+    userBio: "",
+    reting: "",
+    transaction: "",
+    profileImage: "",
+    name: "",
+    streetAddress: "",
+    country: "",
+    apt: "",
+    state: "",
+    zipcode: "",
+    feedbacks: Number,
+    feedbacksdata: [],
+  });
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/products/${productId}`
+          `http://localhost:3001/api/products/total/${productId}`
         );
         setProduct(response.data.products);
         setLoading(false);
@@ -93,14 +124,59 @@ function ProductDetail({ productId }) {
 
     fetchProduct();
   }, [productId]);
+  const sellerID = product ? product.userId : "";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true); // Set loading to true before fetching data
+  
+        // Fetch user data
+        const usersData = await getAllUsersData();
+        const user = usersData.find((user) => user.userid === sellerID);
+  
+        // If user data is found, set user data state and localStorage
+        if (user) {
+          const userData = {
+            userBio: user.bio || "",
+            reting: user.reting || "",
+            transaction: user.feedbacks.length || "",
+            profileImage: user.profileimgae || "",
+            feedbacks: user.feedbacks.length || "",
+            feedbacksdata: [user.feedbacks] || "",
+          };
+          setUserData(userData);
+          localStorage.setItem("userData", JSON.stringify(userData));
+        }
+  
+        // Fetch products for the seller
+        const allProducts = await fetchProducts();
+        const sellerProducts = allProducts.filter(
+          (product) => product.userId === sellerID
+        );
+        setSellerproduct(sellerProducts);
+  
+        setLoading(false); // Set loading to false after fetching data
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setLoading(false);
+      }
+    };
+  
+    // Fetch data when sellerID or getAllUsersData changes
+    if (sellerID) {
+      fetchData();
+    }
+  }, [getAllUsersData, sellerID]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (!product) {
-    return <div>Product not found</div>;
-  }
+  // Function to handle change in the select input
+  const handleShippingChange = (event) => {
+    setSelectedShipping(event.target.value);
+  };
 
   return (
     <>
@@ -282,6 +358,11 @@ function ProductDetail({ productId }) {
             </Box>
           </Fade>
         </Modal>
+        <Modals
+          handleOpen={handleOpen4}
+          open={open4}
+          handleClose={handleClose4}
+        />
 
         <Navbar />
         <div style={{ marginTop: "5rem", borderBottom: "1px solid black" }}>
@@ -302,7 +383,7 @@ function ProductDetail({ productId }) {
           />
           <div className={styles.infoWrapper}>
             <div className={styles.details}>
-              {!product.vender ? (
+              {!product.vendor ? (
                 ""
               ) : (
                 <span className={styles.vendor}>{product.vendor}</span>
@@ -344,22 +425,40 @@ function ProductDetail({ productId }) {
                 {product.condition}
               </p>
               <h1 className={styles.price}>${product.floorPrice}</h1>
-              <span>
-                Shipping — Europe to {product.shippings}{" "}
-                <select name="" id="">
-                  <option value="">Asia</option>
-                  <option value="">europe </option>
-                  <option value="">canda</option>
-                </select>{" "}
+              <span style={{display:"flex",alignItems:"center"}}>
+              <p>  Shipping — {selectedShipping} {product.shippings}</p>
+                <FormControl variant="standard" sx={{ m: 1 }}>
+                  <Select
+                    labelId="shipping-label"
+                    id="shipping"
+                    value={selectedShipping}
+                    onChange={handleShippingChange}
+                    label="Shipping"
+                    sx={{ fontSize: "14px" }}
+                  >
+                    <MenuItem value="">Select</MenuItem>
+                    <MenuItem value="Asia">Asia</MenuItem>
+                    <MenuItem value="Europe">Europe</MenuItem>
+                    <MenuItem value="Canada">Canada</MenuItem>
+                  </Select>
+                </FormControl>
               </span>
 
-              <button
-                className={styles.btn1}
-                disabled={loading}
-              >
-          <Link style={{textDecoration:"none",color:"white"}} href={`/checkout/${product._id}/${!user?(""):user.uid}`}>{'PURCHEASE'}</Link>
-              </button>
-         
+              {!user ? (
+                <button className={styles.btn1} onClick={handleOpen4}>
+                  {"PURCHEASE"}
+                </button>
+              ) : (
+                <button className={styles.btn1} disabled={loading}>
+                  <Link
+                    style={{ textDecoration: "none", color: "white" }}
+                    href={`/checkout/${product._id}/${!user ? "" : user.uid}`}
+                  >
+                    {"PURCHEASE"}
+                  </Link>
+                </button>
+              )}
+
               {product.acceptOffer ? (
                 <button className={styles.btn2} onClick={handleOpen2}>
                   OFFER
@@ -380,12 +479,24 @@ function ProductDetail({ productId }) {
                 }}
                 href={`/profile/designer/${product.userId}`}
               >
-                <img
-                  width={40}
-                  height={40}
-                  src="https://cdn-icons-png.flaticon.com/128/1999/1999625.png"
-                  alt=""
-                />
+                {!userData ? (
+                  <img
+                    width={40}
+                    height={40}
+                    src="https://cdn-icons-png.flaticon.com/128/1999/1999625.png"
+                    alt=""
+                  />
+                ) : (
+                  <>
+                    <img
+                      width={40}
+                      height={40}
+                      style={{ borderRadius: "50%" }}
+                      src={userData.profileImage}
+                      alt=""
+                    />
+                  </>
+                )}
                 <div>
                   <div
                     style={{
@@ -415,9 +526,11 @@ function ProductDetail({ productId }) {
                     <p>{" 3reivews"}</p>
                   </span>
                   <div style={{ margin: "10px 0px", fontSize: "14px" }}>
-                    {"9 Transactions "}
+                    {`${userData.transaction}  Transactions`}
                     <Link href="" style={{ color: "black" }}>
-                      12 items for sell
+                      {`.${
+                        sellerProduct.length
+                      } items for sell`}
                     </Link>
                   </div>
                   <div
@@ -480,7 +593,6 @@ function ProductDetail({ productId }) {
                   <button className={styles.followbtn}>Follow</button>
                 </div>
               </Link>
-
               <div className={styles.feedFlex}>
                 <h4>{"Seller FeedBack"}</h4>
                 <Link
@@ -498,172 +610,352 @@ function ProductDetail({ productId }) {
                 modules={[Pagination]}
                 className={styles.swiper}
               >
-                <SwiperSlide className={styles.swiperslide}>
-                  <Link
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: "14px",
-                    }}
-                    href={`/profile/designer/${product.userId}`}
-                  >
-                    <div>
-                      <div
+                {!user ? (
+                  <>
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "600",
+                          textDecoration: "none",
                           color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
                         }}
+                        href={`/profile/designer/${product.userId}`}
                       >
-                        March 7 2024
-                      </div>
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
 
-                      <span style={{ margin: "10px 0px", color: "black" }}>
-                        <Rating
-                          name="half-rating-read"
-                          defaultValue={5}
-                          precision={4}
-                          style={{ color: "darkgreen", fontSize: "16px" }}
-                          readOnly
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
                         />
-                      </span>
-                      <div style={{ margin: "10px 0px", color: "black" }}>
-                        <span>{" very nice product "}</span>
-                      </div>
-                      <div>
-                        <Link
-                          href=""
-                          style={{ margin: "10px 0px", color: "black" }}
-                        >
-                          {product.designers}
-                        </Link>
-                        <p style={{ margin: "10px 0px" }}>
-                          Nike Vintage Y2K Nylon Baggy Track Pants Double Swoosh
-                        </p>
-                      </div>
-                    </div>
-                    <img
-                      width={100}
-                      height={100}
-                      src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
-                      alt=""
-                    />
-                  </Link>
-                </SwiperSlide>
-                <SwiperSlide className={styles.swiperslide}>
-                  <Link
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: "14px",
-                    }}
-                    href={`/profile/designer/${product.userId}`}
-                  >
-                    <div>
-                      <div
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "600",
+                          textDecoration: "none",
                           color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
                         }}
+                        href={`/profile/designer/${product.userId}`}
                       >
-                        March 7 2024
-                      </div>
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
 
-                      <span style={{ margin: "10px 0px", color: "black" }}>
-                        <Rating
-                          name="half-rating-read"
-                          defaultValue={5}
-                          precision={4}
-                          style={{ color: "darkgreen", fontSize: "16px" }}
-                          readOnly
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
                         />
-                      </span>
-                      <div style={{ margin: "10px 0px", color: "black" }}>
-                        <span>{" very nice product "}</span>
-                      </div>
-                      <div>
-                        <Link
-                          href=""
-                          style={{ margin: "10px 0px", color: "black" }}
-                        >
-                          {product.designers}
-                        </Link>
-                        <p style={{ margin: "10px 0px" }}>
-                          Nike Vintage Y2K Nylon Baggy Track Pants Double Swoosh
-                        </p>
-                      </div>
-                    </div>
-                    <img
-                      width={100}
-                      height={100}
-                      src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
-                      alt=""
-                    />
-                  </Link>
-                </SwiperSlide>
+                      </Link>
+                    </SwiperSlide>
 
-                <SwiperSlide className={styles.swiperslide}>
-                  <Link
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: "14px",
-                    }}
-                    href={`/profile/designer/${product.userId}`}
-                  >
-                    <div>
-                      <div
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
                         style={{
-                          fontSize: "14px",
-                          fontWeight: "600",
+                          textDecoration: "none",
                           color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
                         }}
+                        href={``}
+                        onClick={handleOpen4}
                       >
-                        March 7 2024
-                      </div>
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
 
-                      <span style={{ margin: "10px 0px", color: "black" }}>
-                        <Rating
-                          name="half-rating-read"
-                          defaultValue={5}
-                          precision={4}
-                          style={{ color: "darkgreen", fontSize: "16px" }}
-                          readOnly
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
                         />
-                      </span>
-                      <div style={{ margin: "10px 0px", color: "black" }}>
-                        <span>{" very nice product "}</span>
-                      </div>
-                      <div>
-                        <Link
-                          href=""
-                          style={{ margin: "10px 0px", color: "black" }}
-                        >
-                          {product.designers}
-                        </Link>
-                        <p style={{ margin: "10px 0px" }}>
-                          Nike Vintage Y2K Nylon Baggy Track Pants Double Swoosh
-                        </p>
-                      </div>
-                    </div>
-                    <img
-                      width={100}
-                      height={100}
-                      src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
-                      alt=""
-                    />
-                  </Link>
-                </SwiperSlide>
+                      </Link>
+                    </SwiperSlide>
+                  </>
+                ) : (
+                  <>
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
+                        style={{
+                          textDecoration: "none",
+                          color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
+                        }}
+                        href={`/profile/designer/${product.userId}`}
+                      >
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
+
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
+                        />
+                      </Link>
+                    </SwiperSlide>
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
+                        style={{
+                          textDecoration: "none",
+                          color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
+                        }}
+                        href={`/profile/designer/${product.userId}`}
+                      >
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
+
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
+                        />
+                      </Link>
+                    </SwiperSlide>
+
+                    <SwiperSlide className={styles.swiperslide}>
+                      <Link
+                        style={{
+                          textDecoration: "none",
+                          color: "black",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "14px",
+                        }}
+                        href={`/profile/designer/${product.userId}`}
+                      >
+                        <div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "600",
+                              color: "black",
+                            }}
+                          >
+                            March 7 2024
+                          </div>
+
+                          <span style={{ margin: "10px 0px", color: "black" }}>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={5}
+                              precision={4}
+                              style={{ color: "darkgreen", fontSize: "16px" }}
+                              readOnly
+                            />
+                          </span>
+                          <div style={{ margin: "10px 0px", color: "black" }}>
+                            <span>{" very nice product "}</span>
+                          </div>
+                          <div>
+                            <Link
+                              href=""
+                              style={{ margin: "10px 0px", color: "black" }}
+                            >
+                              {product.designers}
+                            </Link>
+                            <p style={{ margin: "10px 0px" }}>
+                              Nike Vintage Y2K Nylon Baggy Track Pants Double
+                              Swoosh
+                            </p>
+                          </div>
+                        </div>
+                        <img
+                          width={100}
+                          height={100}
+                          src="https://media-assets.grailed.com/prd/listing/temp/542cf3edad86493a9600e874434abe0c?w=120&fit=clip&q=40&auto=format"
+                          alt=""
+                        />
+                      </Link>
+                    </SwiperSlide>
+                  </>
+                )}
               </Swiper>
 
               <div>

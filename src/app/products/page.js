@@ -8,32 +8,85 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import Link from 'next/link';
-import axios from 'axios';
 import Footer from '@/components/Navigations/Footer'
-import { UseAuth } from '../context/AuthContext'
+import Pagination from '@mui/material/Pagination';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import axios from 'axios'
 export default function page() {
-
-
-
-
-  const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false); // Step 1
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen); // Step 2
   };
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalpro, settotalpro] = useState('')
+  const fetchProducts = async (pageNum) => {
+    setIsFetching(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/products');
-      setProducts(response.data.products);
+      const response = await fetch(`http://localhost:3001/api/products?page=${pageNum}&limit=6`);
+      const data = await response.json();
+      const newProducts = data.products; // Assuming API response contains products array
+      if (newProducts.length > 0) {
+        setProducts(newProducts);
+        setPage(pageNum);
+        setHasMore(true);
+      } else {
+        setHasMore(false);
+      }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('Error fetching data:', error);
+    }
+    setIsFetching(false);
+  };
+
+  const [sortOption, setSortOption] = useState('');
+
+  const handleSortChange = (event) => {
+    const option = event.target.value;
+    setSortOption(option);
+    if (option === 'lowPrice') {
+      setProducts([...products.sort((a, b) => a.price - b.price)]);
+    } else if (option === 'highPrice') {
+      setProducts([...products.sort((a, b) => b.price - a.price)]);
+    } else if (option === 'new') {
+      setProducts([...products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))]);
+    } else {
+      // Default sorting or any other sorting logic
     }
   };
+
+
+
+  const handlePagination = (event, pageNum) => {
+    fetchProducts(pageNum);
+  };
+
+  useEffect(() => {
+    const fetchTotalProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/products/total');
+
+        const totalProducts = response.data.products.length;
+        settotalpro(totalProducts)
+
+        const itemsPerPage = 6; // Replace with your limit per page
+        const totalPagesCount = Math.ceil(totalProducts / itemsPerPage);
+        setTotalPages(totalPagesCount);
+        // Fetch products for the initial page
+        fetchProducts(page);
+      } catch (error) {
+        console.error('Error fetching total products:', error);
+      }
+    };
+
+    fetchTotalProducts();
+  }, []);
+
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFilters({ ...filters, [name]: value });
@@ -42,18 +95,6 @@ export default function page() {
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
     setFilters({ ...filters, [name]: checked });
-  };
-  const handleSortChange = (event) => {
-    const value = event.target.value;
-    if (value === 'lowPrice') {
-      setProducts([...products.sort((a, b) => a.price - b.price)]);
-    } else if (value === 'highPrice') {
-      setProducts([...products.sort((a, b) => b.price - a.price)]);
-    } else if (value === 'new') {
-      setProducts([...products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))]);
-    } else {
-      // Default sorting or any other sorting logic
-    }
   };
 
   // Function to filter products based on selected filters
@@ -107,16 +148,24 @@ export default function page() {
 
       </div>
       <div className={style.wrapper2}>
-        <span style={{ fontWeight: "bold" }}>{products.length} listings</span>
+        <span style={{ fontWeight: "bold" }}>{totalpro} listings</span>
         <div style={{ display: "flex", alignItems: "center" }}>
           <button style={{ background: "black", color: "white", border: "none", padding: "10px 25px", fontWeight: "bold" }}>Follow</button>
-          <select className={style.selectFliter} onChange={handleSortChange}>
-            <option value="">Sort By: Default</option>
-            <option value="trending">Sort By: Trending</option>
-            <option value="lowPrice">Sort By: Low Price</option>
-            <option value="highPrice">Sort By: High Price</option>
-            <option value="new">Sort By: New</option>
-          </select>
+          <FormControl  sx={{ m: 1, minWidth: 120 }} size="small">
+          <InputLabel id="demo-select-small-label">Sort By</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              id="demo-select-small"
+              value={sortOption}
+              onChange={handleSortChange}
+              label="Sort by"
+
+            >
+              <MenuItem value="lowPrice">Low Price</MenuItem>
+              <MenuItem value="highPrice">High Price</MenuItem>
+              <MenuItem value="new">New</MenuItem>
+            </Select>
+          </FormControl>
         </div>
       </div>
       <div className={style.wrapper}>
@@ -457,60 +506,78 @@ export default function page() {
 
         </div>
 
-        <div className={style.productWrapprer}>
 
-          {!products?(<div>loading...</div>):products.filter(filterProducts).map((x) => {
-            return <>
 
-              <div key={x._id} className={style.ProductSildes}>
-                <Link style={{ textDecoration: "none", cursor: "pointer", color: "black" }} href={`/listlings/${x._id}`} passHref>
-                  <div className={style.imgCol}>
-                    <img src={x.productImage1} alt="" />
-                    {!x.vendor?"":<span className={style.tags}>{x.vendor}</span>}
-                  </div>
-                  <p> about 1 hour <span style={{textDecoration:"line-through"}}>{'(23 days)'}</span></p>
 
-                  <hr />
-                  <div className={style.descCol}>
-                    <p className={style.title}>
-                      {x.productName.slice(0, 15)}...
+
+
+        <div className={style.ProCol}>
+          <div className={style.productWrapprer}>
+
+            {products.filter(filterProducts).map((x) => {
+              return <>
+
+                <div key={x._id} className={style.ProductSildes}>
+                  <Link style={{ textDecoration: "none", cursor: "pointer", color: "black" }} href={`/listlings/${x._id}`} passHref>
+                    <div className={style.imgCol}>
+                      <img src={x.productImage1} alt="" />
+                      {!x.vendor ? "" : <span className={style.tags}>{x.vendor}</span>}
+                    </div>
+                    <p> about 1 hour <span style={{ textDecoration: "line-through" }}>{'(23 days)'}</span></p>
+
+                    <hr />
+                    <div className={style.descCol}>
+                      <p className={style.title}>
+                        {x.productName.slice(0, 15)}...
+                      </p>
+                      <p>{x.description.slice(0, 25)}</p>
+                    </div>
+                  </Link>
+                  <div className={style.priceCol}>
+                    <p className={style.price}>
+                      <span style={{ color: "red", margin: "0px 2px" }}> ${x.floorPrice ? x.floorPrice : ""}</span>
+                      <span className={style.floorPrice}>
+                        ${x.price}
+                      </span>
+                      <span className={style.discount}>  {`${calculateDiscountPercentage(x.price, x.floorPrice).toFixed(0)}% off`}</span>
                     </p>
-                    <p>{x.description.slice(0, 25)}</p>
+                    <button className={style.btn}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        width={24}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                        />
+                      </svg>
+                    </button>
                   </div>
-                </Link>
-                <div className={style.priceCol}>
-                  <p className={style.price}>
-                    <span style={{ color: "red", margin: "0px 2px" }}> ${x.floorPrice?x.floorPrice:""}</span>
-                    <span className={style.floorPrice}>
-                      ${x.price}
-                    </span>
-                    <span className={style.discount}>  {`${calculateDiscountPercentage(x.price, x.floorPrice).toFixed(0)}% off`}</span>
-                  </p>
-                  <button className={style.btn}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      width={24}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                      />
-                    </svg>
-                  </button>
                 </div>
-              </div>
-            </>
-          })
+              </>
+            })
 
-          }
+            }
+
+          </div>
+          <Pagination
+            style={{ margin: "20px" }}
+            count={totalPages}
+            shape="rounded"
+            page={page}
+            onChange={handlePagination}
+          ></Pagination>
         </div>
 
       </div>
+
+
+
 
       <Footer />
     </div>

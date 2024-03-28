@@ -7,7 +7,7 @@ const nextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://administration-tau.vercel.app", // Set your frontend origin
+            value: "https://administration-tau.vercel.app/", // Set your frontend origin
           },
           {
             key: "Access-Control-Allow-Methods",

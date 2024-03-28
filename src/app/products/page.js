@@ -30,7 +30,7 @@ export default function page() {
     setIsFetching(true);
     try {
       const response = await fetch(
-        `http://localhost:3001/api/products?page=${pageNum}&limit=6`
+        `https://administration-tau.vercel.app/api/products?page=${pageNum}&limit=6`
       );
       const data = await response.json();
       const newProducts = data.products; // Assuming API response contains products array
@@ -74,7 +74,7 @@ export default function page() {
     const fetchTotalProducts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/products/total"
+          "https://administration-tau.vercel.app/api/products/total"
         );
 
         const totalProducts = response.data.products.length;

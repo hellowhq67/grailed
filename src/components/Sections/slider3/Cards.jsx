@@ -83,6 +83,7 @@ export default function Cards() {
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
+                    style={{color:"#000000"}}
                     width={24}
                   >
                     <path
@@ -93,7 +94,7 @@ export default function Cards() {
                   </svg>
                 </button>
               </div>
-              <Link style={{fontSize:"14px",color:"black"}} href='/products'>see more</Link>
+              <Link style={{fontSize:"14px",color:"black"}} href='/products/cetagory/menswear/top'>see more</Link>
             </div>
 
         ))}

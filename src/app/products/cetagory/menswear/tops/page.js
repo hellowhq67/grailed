@@ -1,20 +1,51 @@
-"use client"
-import React, { useEffect, useState } from 'react'
-import style from './style.module.css'
-import Navbar from '@/components/Navigations/Navbar'
-import NestedMenu from '@/components/Navigations/NestedMenu'
+"use client";
+import React, { useEffect, useState } from "react";
+import style from "./style.module.css";
+import Navbar from "@/components/Navigations/Navbar";
+import NestedMenu from "@/components/Navigations/NestedMenu";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
-import Link from 'next/link';
-import axios from 'axios';
-import Footer from '@/components/Navigations/Footer'
-import Designers from '@/components/Designer/Designers'
-import Page from '@/components/Sections/article/Page'
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Link from "next/link";
+import axios from "axios";
+import Footer from "@/components/Navigations/Footer";
+import Slider from "@/components/Sections/Slider/Slider";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 export default function page() {
+  const datas = [
+    {
+      img: "https://media-assets.grailed.com/prd/misc/e671efc39e7e48968c6e0299d3ccd612?w=180&h=180&fit=clip&q=40&auto=format",
+      title: "On location:Berlin",
+      collectionName: "Sweatshirts & Hoodies",
+      path: "/reads/",
+    },
+    {
+      img: "https://media-assets.grailed.com/prd/detail-page/5d268498da23442fa03169ff15113ea8?w=180&h=180&fit=clip&q=40&auto=format",
+      title: "Kintweare Essentials",
+      collectionName: "Long Sleeve T-Shirts",
+      path: "/collectoins/",
+    },
 
+    {
+      img: "https://media-assets.grailed.com/prd/detail-page/578ef720b4ae4800900da2df48c95551?w=180&h=180&fit=clip&q=40&auto=format",
+      title: "EveryThing Vintage",
+      collectionName: "Short Sleeve T-Shirts",
+      path: "",
+    },
+    {
+      img: "https://media-assets.grailed.com/prd/detail-page/245366e6a4374a3e8200b54efd0871bc?w=180&h=180&fit=clip&q=40&auto=format",
+      title: "Post-Sneaker World",
+      collectionName: "Sweaters & Knitwear",
+      path: "",
+    },
+    {
+      img: "https://media-assets.grailed.com/prd/detail-page/245366e6a4374a3e8200b54efd0871bc?w=180&h=180&fit=clip&q=40&auto=format",
+      title: "Post-Sneaker World",
+      collectionName: "Polos",
+      path: "",
+    },
+  ];
   const [filters, setFilters] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(false); // Step 1
   const [minPrice, setMinPrice] = useState(""); // State for minimum price
@@ -26,8 +57,82 @@ export default function page() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalpro, settotalpro] = useState("");
   const [sortOption, setSortOption] = useState("");
-  const [keywords, setKeywords] = useState("");  
+  const [keywords, setKeywords] = useState(""); // State for keywords filter // Step 1
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen); // Step 2
+  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/products/total"
+      );
+      // Filter products with category "TOPS" and department "MENSWEAR"
+      const filteredProducts = response.data.products.filter(
+        (product) =>
+          product.category === "TOPS" && product.department === "MENSWEAR"
+      );
+      setProducts(filteredProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+    setFilters({ ...filters, [name]: checked });
+  };
+  // Function to handle checkbox change and update filters
+  const filterProducts = (product) => {
+    // Check if product matches all selected filters
+    for (const filter in filters) {
+      if (filters[filter] && filter !== "minPrice" && filter !== "maxPrice") {
+        if (filter === "size") {
+          if (!product.size.includes(filters[filter])) {
+            return false;
+          }
+        } else if (filter === "minPrice") {
+          if (parseInt(product.price) < parseInt(filters[filter])) {
+            return false;
+          }
+        } else if (filter === "maxPrice") {
+          if (parseInt(product.price) > parseInt(filters[filter])) {
+            return false;
+          }
+        } else if (
+          product.department !== filter &&
+          product.category !== filter &&
+          product.subcategory !== filter &&
+          product.designers !== filter &&
+          product.conditon !== filter
+        ) {
+          return false;
+        }
+      }
+    }
+    // Check min and max price filter
+    if (minPrice && parseInt(product.floorPrice) < parseInt(minPrice)) {
+      return false;
+    }
+    if (maxPrice && parseInt(product.floorPrice) > parseInt(maxPrice)) {
+      return false;
+    }
+    if (
+      keywords &&
+      !product.productName.toLowerCase().includes(keywords.toLowerCase())
+    ) {
+      return false;
+    }
 
+    return true;
+  };
+
+  // Function to handle min price input change
+
+  const calculateDiscountPercentage = (price, floorPrice) => {
+    return ((price - floorPrice) / price) * 100;
+  };
   const handleSortChange = (event) => {
     const option = event.target.value;
     setSortOption(option);
@@ -45,122 +150,95 @@ export default function page() {
       // Default sorting or any other sorting logic
     }
   };
-  const handleCheckboxChange = (event) => {
-    const { name, checked } = event.target;
-    setFilters({ ...filters, [name]: checked });
+
+  // Function to handle min price input change
+  const handleMinPriceChange = (event) => {
+    const { value } = event.target;
+    setMinPrice(value);
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen); // Step 2
+  // Function to handle max price input change
+  const handleMaxPriceChange = (event) => {
+    const { value } = event.target;
+    setMaxPrice(value);
   };
-    // Function to filter products based on selected filters
-    const filterProducts = (product) => {
-      // Check if product matches all selected filters
-      for (const filter in filters) {
-        if (filters[filter] && filter !== "minPrice" && filter !== "maxPrice") {
-          if (filter === "size") {
-            if (!product.size.includes(filters[filter])) {
-              return false;
-            }
-          } else if (filter === "minPrice") {
-            if (parseInt(product.price) < parseInt(filters[filter])) {
-              return false;
-            }
-          } else if (filter === "maxPrice") {
-            if (parseInt(product.price) > parseInt(filters[filter])) {
-              return false;
-            }
-          } else if (
-            product.department !== filter &&
-            product.category !== filter &&
-            product.subcategory !== filter &&
-            product.designers !== filter &&
-            product.conditon !== filter
-          ) {
-            return false;
-          }
-        }
-      }
-      // Check min and max price filter
-      if (minPrice && parseInt(product.floorPrice) < parseInt(minPrice)) {
-        return false;
-      }
-      if (maxPrice && parseInt(product.floorPrice) > parseInt(maxPrice)) {
-        return false;
-      }
-      if (
-        keywords &&
-        !product.productName.toLowerCase().includes(keywords.toLowerCase())
-      ) {
-        return false;
-      }
-  
-      return true;
-    };
-  
-    // Function to handle min price input change
-  
-    const calculateDiscountPercentage = (price, floorPrice) => {
-      return ((price - floorPrice) / price) * 100;
-    };
-  
-    // Function to handle min price input change
-    const handleMinPriceChange = (event) => {
-      const { value } = event.target;
-      setMinPrice(value);
-    };
-  
-    // Function to handle max price input change
-    const handleMaxPriceChange = (event) => {
-      const { value } = event.target;
-      setMaxPrice(value);
-    };
-    const handleKeywordsChange = (event) => {
-      const { value } = event.target;
-      setKeywords(value);
-    };
-  
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/products');
-      setProducts(response.data.products);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+  const handleKeywordsChange = (event) => {
+    const { value } = event.target;
+    setKeywords(value);
   };
-
   return (
-
     <div>
       <Navbar />
-      <div style={{ marginTop: '4rem ', border: '1px solid black', width: "100vw" }}>
+      <div
+        style={{
+          marginTop: "4rem ",
+          border: "1px solid black",
+          width: "100vw",
+        }}
+      >
         <NestedMenu />
       </div>
-      <div className={style.fiterButton} onClick={toggleSidebar}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width={30}>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
-        </svg>
+      <div className={style.hearContent}>
+        <div className={style.collectionCon}>
+          <div className={style.collectionCol}>
+            <div>
+              <h2>{"Men  Tops"}</h2>
+            </div>
 
+            <div className={style.collectionWrapper}>
+              {datas.map((x) => {
+                return (
+                  <>
+                    <div>
+                      <img src={x.img} alt="" />
+                      <p>{x.collectionName}</p>
+                    </div>
+                  </>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <Slider />
       </div>
-      <Designers />
-      <Page/>
+      <div className={style.fiterButton} onClick={toggleSidebar}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          width={30}
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+          />
+        </svg>
+      </div>
       <div className={style.wrapper2}>
         <span style={{ fontWeight: "bold" }}>{products.length} listings</span>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <button style={{ background: "black", color: "white", border: "none", padding: "10px 25px", fontWeight: "bold" }}>Follow</button>
+          <button
+            style={{
+              background: "black",
+              color: "white",
+              border: "none",
+              padding: "10px 25px",
+              fontWeight: "bold",
+            }}
+          >
+            Follow
+          </button>
           <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-          <InputLabel id="demo-select-small-label">Sort By</InputLabel>
+            <InputLabel id="demo-select-small-label">Sort By</InputLabel>
             <Select
               labelId="demo-select-small-label"
               id="demo-select-small"
               value={sortOption}
               onChange={handleSortChange}
               label="Sort by"
-
             >
               <MenuItem value="lowPrice">Low Price</MenuItem>
               <MenuItem value="highPrice">High Price</MenuItem>
@@ -170,7 +248,6 @@ export default function page() {
         </div>
       </div>
       <div className={style.wrapper}>
-
       <div
           className={`${style.productFilter} ${sidebarOpen ? "" : style.closed
             }`}
@@ -2052,20 +2129,37 @@ export default function page() {
             </AccordionDetails>
           </Accordion>
         </div>
+
+
         <div className={style.productWrapprer}>
-
-          {!products ? (<div>loading...</div>) : (
-            products.filter(filterProducts).map((x) => {
-              return <>
-
+          {products.filter(filterProducts).map((x) => {
+            return (
+              <>
                 <div key={x._id} className={style.ProductSildes}>
-                  <Link style={{ textDecoration: "none", cursor: "pointer", color: "black" }} href={`/listlings/${x._id}`} passHref>
+                  <Link
+                    style={{
+                      textDecoration: "none",
+                      cursor: "pointer",
+                      color: "black",
+                    }}
+                    href={`/listlings/${x._id}`}
+                    passHref
+                  >
                     <div className={style.imgCol}>
                       <img src={x.productImage1} alt="" />
-                      {!x.vendor ? "" : <span className={style.tags}>{x.vendor}</span>}
+                      {!x.vendor ? (
+                        ""
+                      ) : (
+                        <span className={style.tags}>{x.vendor}</span>
+                      )}
                     </div>
-                    <p> about 1 hour <span style={{ textDecoration: "line-through" }}>{'(23 days)'}</span></p>
-
+                    <p>
+                      {" "}
+                      about 1 hour{" "}
+                      <span style={{ textDecoration: "line-through" }}>
+                        {"(23 days)"}
+                      </span>
+                    </p>
                     <hr />
                     <div className={style.descCol}>
                       <p className={style.title}>
@@ -2076,11 +2170,18 @@ export default function page() {
                   </Link>
                   <div className={style.priceCol}>
                     <p className={style.price}>
-                      <span style={{ color: "red", margin: "0px 2px" }}> ${x.floorPrice ? x.floorPrice : ""}</span>
-                      <span className={style.floorPrice}>
-                        ${x.price}
+                      <span style={{ color: "red", margin: "0px 2px" }}>
+                        {" "}
+                        ${x.floorPrice ? x.floorPrice : ""}
                       </span>
-                      <span className={style.discount}>  {`${calculateDiscountPercentage(x.price, x.floorPrice).toFixed(0)}% off`}</span>
+                      <span className={style.floorPrice}>${x.price}</span>
+                      <span className={style.discount}>
+                        {" "}
+                        {`${calculateDiscountPercentage(
+                          x.price,
+                          x.floorPrice
+                        ).toFixed(0)}% off`}
+                      </span>
                     </p>
                     <button className={style.btn}>
                       <svg
@@ -2101,15 +2202,12 @@ export default function page() {
                   </div>
                 </div>
               </>
-            })
-          )
-
-          }
+            );
+          })}
         </div>
-
       </div>
 
       <Footer />
     </div>
-  )
+  );
 }

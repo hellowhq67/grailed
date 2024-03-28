@@ -65,20 +65,32 @@ function Sidebar({ toggleSidebar, isOpen }) {
           id="panel1-header"
         >
           <Typography style={{ fontWeight: "bold" }}>
-          {user ? (
-                 <div>{user.email && <p> {user.email}</p>}</div>
-               ) : (
-                 <div>Not logged in</div>
-               )}
+            {user ? (
+              <div>{user.email && <p> {user.email}</p>}</div>
+            ) : (
+              <div>Not logged in</div>
+            )}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <div className={style.checkboxMobile}>
-            <Link href={"/favorites/"}>FAVORITES</Link>
-            <Link href={"/purchases"}>PURCHASES</Link>
-            {!user ? "" : <Link href={`/sell/${user&&user.uid}`}>Sell</Link>}
-            <Link href={`/sell/${user&&user.uid}`}>FOR SALE</Link>
-            <Link href={`/profile/${user&&user.uid}`}>MY ACCOUNT</Link>
+            <Link href={"/favorites"}>FAVORITES</Link>
+            <Link href={""}>PURCHASES</Link>
+            {!user ? (
+              ""
+            ) : (
+              <Link href={`/profile/${user && user.uid}`}>MY ACCOUNT</Link>
+            )}
+            {!user ? (
+              ""
+            ) : (
+              <Link href={` /profile/address/${user && user.uid}`}>
+                Address
+              </Link>
+            )}
+
+            {!user ? "" : <Link href={`/sell/${user && user.uid}`}>Sell</Link>}
+
             <Link onClick={handelLogout} href="">
               SIGN OUT
             </Link>
@@ -140,8 +152,8 @@ function Sidebar({ toggleSidebar, isOpen }) {
         </AccordionDetails>
       </Accordion>
       <div className={style.otherLinks}>
-        <Link href="">Designer</Link>
-        <Link href="">Sneakers</Link>
+        <Link href="/products/designer">Designer</Link>
+        <Link href="/products/cetagory/menswear/footwear">Sneakers</Link>
 
         <Link href="/products">Shop</Link>
         <Link href="/products">collections</Link>

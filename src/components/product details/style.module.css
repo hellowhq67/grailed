@@ -109,6 +109,7 @@
   font-weight: bold;
   font-size: 17px;
   cursor: pointer;
+  color: #000000;
 }
 .sugcol1 {
   margin: 4rem 20px;
@@ -152,6 +153,7 @@
   background: none;
   border: none;
 }
+
 @media (max-width: 750px) {
   .wrapper {
     display: flex;

@@ -28,7 +28,6 @@ import Cards2 from "../Sections/slider4/Cards2";
 import Page from "../Sections/article/Page";
 import Footer from "../Navigations/Footer";
 import { UseAuth } from "@/app/context/AuthContext";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ToastContainer, toast } from "react-toastify";
 import ProductSilder from "../productSildersq/ProductSilder";
 import Modals from "../authModal/Modals";
@@ -62,7 +61,9 @@ const style = {
 
 const fetchProducts = async () => {
   try {
-    const response = await axios.get("http://localhost:3001/api/products/total");
+    const response = await axios.get(
+      "http://localhost:3001/api/products/total"
+    );
     return response.data.products;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -130,11 +131,11 @@ function ProductDetail({ productId }) {
     const fetchData = async () => {
       try {
         setLoading(true); // Set loading to true before fetching data
-  
+
         // Fetch user data
         const usersData = await getAllUsersData();
         const user = usersData.find((user) => user.userid === sellerID);
-  
+
         // If user data is found, set user data state and localStorage
         if (user) {
           const userData = {
@@ -144,25 +145,26 @@ function ProductDetail({ productId }) {
             profileImage: user.profileimgae || "",
             feedbacks: user.feedbacks.length || "",
             feedbacksdata: [user.feedbacks] || "",
+            location: user.location || "",
           };
           setUserData(userData);
           localStorage.setItem("userData", JSON.stringify(userData));
         }
-  
+
         // Fetch products for the seller
         const allProducts = await fetchProducts();
         const sellerProducts = allProducts.filter(
           (product) => product.userId === sellerID
         );
         setSellerproduct(sellerProducts);
-  
+
         setLoading(false); // Set loading to false after fetching data
       } catch (error) {
         console.error("Error fetching user data:", error);
         setLoading(false);
       }
     };
-  
+
     // Fetch data when sellerID or getAllUsersData changes
     if (sellerID) {
       fetchData();
@@ -368,10 +370,31 @@ function ProductDetail({ productId }) {
         <div style={{ marginTop: "5rem", borderBottom: "1px solid black" }}>
           <NestedMenu />
         </div>
-        <span style={{ margin: "20px" }}>
-          <Link href="">{product.designers}</Link>
+        <span className={style.cetagoryLink}>
+          <Link
+            style={{ color: "black", fontSize: "13px", margin: "0p 4px" }}
+            href={`/products/cetagory/${product.department.toLowerCase()}/${product.category.toLowerCase()}`}
+          >
+            {product.designers} {product.department.toLowerCase()}
+          </Link>
           {"> "}
-          <Link href="">{product.designers}</Link>
+          <Link
+            style={{ color: "black", fontSize: "13px", margin: "0p 4px" }}
+            href={`/products/cetagory/${product.department.toLowerCase()}/${product.category.toLowerCase()}`}
+          >
+            {product.designers} {product.category.toLowerCase()}
+          </Link>
+          {"> "}
+          <Link
+            style={{ color: "black", fontSize: "13px", margin: "0p 4px" }}
+            href={`/products/cetagory/${product.department.toLowerCase()}/${product.category.toLowerCase()}`}
+          >
+            {product.designers} {product.subcategory.toLowerCase()}
+          </Link>
+          {"> "}
+          <span style={{ color: "gray", fontSize: "12px" }}>
+            {product.productName}
+          </span>
         </span>
         <div className={styles.wrapper}>
           <ProductSilder
@@ -425,24 +448,31 @@ function ProductDetail({ productId }) {
                 {product.condition}
               </p>
               <h1 className={styles.price}>${product.floorPrice}</h1>
-              <span style={{display:"flex",alignItems:"center"}}>
-              <p>  Shipping — {selectedShipping} {product.shippings}</p>
-                <FormControl variant="standard" sx={{ m: 1 }}>
-                  <Select
-                    labelId="shipping-label"
-                    id="shipping"
-                    value={selectedShipping}
-                    onChange={handleShippingChange}
-                    label="Shipping"
-                    sx={{ fontSize: "14px" }}
+              <div style={{display:"flex",alignItems:"center"}}>
+                <span style={{transform:"translateY(-3px)"}}> {"+"}</span>
+                <span> <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-currency-dollar"
+                    viewBox="0 0 16 16"
                   >
-                    <MenuItem value="">Select</MenuItem>
-                    <MenuItem value="Asia">Asia</MenuItem>
-                    <MenuItem value="Europe">Europe</MenuItem>
-                    <MenuItem value="Canada">Canada</MenuItem>
-                  </Select>
-                </FormControl>
-              </span>
+                    <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z" />
+                  </svg></span>
+                <span>
+                 
+               
+                  {product.shippings} Shipping —{userData.location} to
+                </span>{" "}
+                <span>
+                <select style={{ border: "none" }} name="" id="">
+                  <option value="">USA </option>
+                  <option value="">UK</option>
+                  <option value="">Europe</option>
+                </select>
+                </span>
+              </div>
 
               {!user ? (
                 <button className={styles.btn1} onClick={handleOpen4}>
@@ -527,10 +557,11 @@ function ProductDetail({ productId }) {
                   </span>
                   <div style={{ margin: "10px 0px", fontSize: "14px" }}>
                     {`${userData.transaction}  Transactions`}
-                    <Link href="" style={{ color: "black" }}>
-                      {`.${
-                        sellerProduct.length
-                      } items for sell`}
+                    <Link
+                      href={`/profile/designer/${product.userId}`}
+                      style={{ color: "black" }}
+                    >
+                      {`.${sellerProduct.length} items for sell`}
                     </Link>
                   </div>
                   <div

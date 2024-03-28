@@ -36,6 +36,7 @@ export default function Slider() {
   const calculateDiscountPercentage = (price, floorPrice) => {
     return ((price - floorPrice) / price) * 100;
   };
+
   return (
     <div className={style.SliderCol}>
       <div className={style.wrapper}>
@@ -47,31 +48,36 @@ export default function Slider() {
           >{`SEE ALL->`}</Link>
         </div>
         <Swiper
-          slidesPerView={1}
-          spaceBetween={10}
-          pagination={{
-            clickable: true,
-          }}
-          navigation={true}
+          slidesPerView={5} // Show 4 slides per view
+          spaceBetween={20} // Space between slides
           modules={[Pagination, Navigation]}
           breakpoints={{
             "@0.00": {
               slidesPerView: 2,
               spaceBetween: 10,
             },
-            "@0.75": {
-              slidesPerView: 2,
+            "@0.20": {
+              slidesPerView: 4,
+              spaceBetween: 10,
+            },
+            "@0.48": {
+              slidesPerView: 4,
+              spaceBetween: 10,
+            },
+            "@0.64": {
+              slidesPerView: 5,
               spaceBetween: 20,
             },
             "@1.00": {
-              slidesPerView: 3,
-              spaceBetween: 20,
-            },
-            "@1.50": {
-              slidesPerView: 4,
+              slidesPerView: 5,
               spaceBetween: 40,
             },
+            "@1.50": {
+              slidesPerView: 5,
+              spaceBetween: 50,
+            },
           }}
+          
           className={style.swiper}
         >
           {products.map((product) => (
@@ -94,24 +100,24 @@ export default function Slider() {
                         <span className={style.tags}>{product.vendor}</span>
                       )}
                     </div>
-                    <p>
+                    <div className={style.time}>
                       {" "}
                       about 1 hour{" "}
                       <span style={{ textDecoration: "line-through" }}>
                         {"(23 days)"}
                       </span>
-                    </p>
+                    </div>
                     <hr />
                     <div className={style.descCol}>
                       <p className={style.title}>
                         {product.productName.slice(0, 15)}...
                       </p>
-                      <p>{product.description.slice(0, 25)}</p>
+                      <p className={style.desc}>{product.description.slice(0, 25)}</p>
                     </div>
                   </div>
                 </Link>
                 <div className={style.priceCol}>
-                  <p className={style.price}>
+                  <div className={style.price}>
                     <span style={{ color: "red", margin: "0px 2px" }}>
                       {" "}
                       ${product.floorPrice ? product.floorPrice : ""}
@@ -124,7 +130,7 @@ export default function Slider() {
                         product.floorPrice
                       ).toFixed(0)}% off`}
                     </span>
-                  </p>
+                  </div>
                   <button className={style.btn}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +138,7 @@ export default function Slider() {
                       viewBox="0 0 24 24"
                       strokeWidth="1.5"
                       stroke="currentColor"
-                      width={24}
+                      width={20}
                     >
                       <path
                         strokeLinecap="round"

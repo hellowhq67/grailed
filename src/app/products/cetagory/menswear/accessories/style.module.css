@@ -50,9 +50,10 @@
 .wrapper {
   display: flex;
   align-items: flex-start;
-  width: 100%;
   justify-content: center;
-
+  margin: 4rem 8rem;
+  width: 100vw;
+  height: 100%;
 }
 .wrapper2 {
     display: flex;
@@ -67,6 +68,8 @@
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
+  width: 60vw;
+  height: 100%;
 }
 .productWrapprer .ProductSildes {
   margin: 20px;

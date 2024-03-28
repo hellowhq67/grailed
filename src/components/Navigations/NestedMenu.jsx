@@ -9,29 +9,29 @@ export default function NestedMenu() {
         <Link href="/products/designer"> DESIGNERS</Link>
       </li>
       <li className={style.sub1}>
-        <Link href="/"> MENSWEAR</Link>
+        <Link href="/products/menswear/tops"> MENSWEAR</Link>
         <ul className={style.submenu1}>
           <li>
-            <Link href="/products"> ALL CATEGORIES</Link>
+            <Link href="/products/menswear/tops"> ALL CATEGORIES</Link>
           </li>
           <li className={style.submenu1Sub}>
-            <Link href="/products/cetagory/menswear/top">TOPS</Link>
+            <Link href="/products/cetagory/menswear/tops">TOPS</Link>
 
             <ul className={style.subMenu1subMenu}>
               <li>
-                <Link href="/products/cetagory/menswear/top"> LONG SLEEVE T-SHIRTS</Link>
+                <Link href="/products/cetagory/menswear/tops"> LONG SLEEVE T-SHIRTS</Link>
               </li>
               <li>
-                <Link href="/products/cetagory/menswear/top">POLOS </Link>
+                <Link href="/products/cetagory/menswear/tops">POLOS </Link>
               </li>
               <li>
-                <Link href="/products/cetagory/menswear/top">SHIRTS (BUTTON UPS) </Link>
+                <Link href="/products/cetagory/menswear/tops">SHIRTS (BUTTON UPS) </Link>
               </li>
               <li>
-                <Link href="/products/cetagory/menswear/top">SHORT SLEEVE T-SHIRTS </Link>
+                <Link href="/products/cetagory/menswear/tops">SHORT SLEEVE T-SHIRTS </Link>
               </li>
               <li>
-                <Link href="/products/cetagory/menswear/top">SHORT SLEEVE T-SHIRTS </Link>
+                <Link href="/products/cetagory/menswear/tops">SHORT SLEEVE T-SHIRTS </Link>
               </li>
              
             </ul>
@@ -62,7 +62,7 @@ export default function NestedMenu() {
             <Link href="/products">TAILORING</Link>
           </li>
           <li>
-            <Link href="/products/cetagory/menswear/accesories">ACCESSORIES</Link>
+            <Link href="/products/cetagory/menswear/accessories">ACCESSORIES</Link>
           </li>
         </ul>
       </li>
